@@ -13,6 +13,11 @@ def mainMenu():
 ids = []
 statuses = []
 created_at = []
+firstname = []
+lastname= []
+mobile_phone=[]
+emails= []
+gender= []
 while True:
     os.system('clear')
     mainMenu()   
