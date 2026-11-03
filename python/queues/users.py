@@ -123,7 +123,7 @@ while True:
         case '2':
             while True:
                 os.system('clear')
-                print("::: List Active Users Submenu :::")
+                print("::: List All Users Submenu :::")
                 print("[1] Sort in ascending order by identification")
                 print("[2] Sort in descending order by identification")
                 print("[3] Sort in ascending order by lastname")
@@ -136,12 +136,8 @@ while True:
                     break
                 
                 if sort_opt in ['1', '2', '3', '4']:
-                    indices = []
-                    i = 0
-                    while i < len(ids):
-                        if statuses[i] == True:
-                            indices.append(i)
-                        i += 1
+                    # Incluye todos los índices registrados (tanto activos como inactivos)
+                    indices = list(range(len(ids)))
                     
                     if sort_opt == '1':
                         indices.sort(key=lambda i: ids[i])
@@ -153,16 +149,17 @@ while True:
                         indices.sort(key=lambda i: lastnames[i].lower(), reverse=True)
 
                     os.system('clear')
-                    print(":::List all active registered users:::")
-                    print ('-'*163)
-                    print (f"| {'id':<15} | {'Firsname':<15} | {'Lastname':<15} | {'Mobile Phone':<15} | {'Email':<15} | {'Gender':<15} | {'Age':<15} | {'Salary':<15} | {'Created':<15} |")
-                    print ('-'*163)
+                    print("::: List all registered users :::")
+                    print ('-'*182)
+                    print (f"| {'id':<15} | {'Firsname':<15} | {'Lastname':<15} | {'Mobile Phone':<15} | {'Email':<15} | {'Status':<12} | {'Gender':<8} | {'Age':<8} | {'Salary':<12} | {'Created':<12} |")
+                    print ('-'*182)
 
                     for i in indices:
-                        print(f'| {ids[i]:<15} | {firtsnames[i]:<15} | {lastnames[i]:<15} | {mobile_phones[i]:<15} | {emails[i]:<15} | {genders[i]:<15} | {str(ages[i]):<15} | {str(salarys[i]):<15} | {str(created_at[i]):<15} |')
-                        print ('-'*163)
+                        status_str = "Active" if statuses[i] else "Inactive"
+                        print(f'| {ids[i]:<15} | {firtsnames[i]:<15} | {lastnames[i]:<15} | {mobile_phones[i]:<15} | {emails[i]:<15} | {status_str:<12} | {genders[i]:<8} | {str(ages[i]):<8} | {str(salarys[i]):<12} | {str(created_at[i]):<12} |')
+                        print ('-'*182)
                     
-                    any_key = input("Press any key to continue...")
+                    any_key = input("\nPress any key to continue...")
                 else:
                     any_key = input("Invalid option. Press any key to try again...")
 
@@ -176,27 +173,179 @@ while True:
             i = 0
             j = 0
             while i < len(ids):
-                if id_user== ids[i]:
-                    j+= 1
+                if id_user == ids[i]:
+                    j += 1
                     break
                 i += 1
             
-            if j>0:
+            if j > 0:
                 os.system('clear')
                 print("::: User found :::")
                 print (f"ident.user: {ids[i]}")
                 print (f"fullname: {firtsnames[i]} {lastnames[i]}")
                 print (f"mobile phone: {mobile_phones[i]}")
                 print (f"email: {emails[i]}")
-                print (f"mobile gender: {genders[i]}")
-                print (f" age: {ages[i]}")
+                print (f"status: {'Active' if statuses[i] else 'Inactive'}")
+                print (f"gender: {genders[i]}")
+                print (f"age: {ages[i]}")
                 print (f"salary: {salarys[i]}")
             else:
                 print("identification number not found.")
             
             any_key = input("\nPress any key to back to main menu")
 
-        
+        case '5':
+            os.system('clear')
+            print("::: Update User :::")
+            id_user = input("Enter identification number to update: ")
+            user_index = 0
+            while user_index < len(ids) and ids[user_index] != id_user:
+                user_index += 1
+            if user_index == len(ids):
+                print("identification number not found.")
+                input("\nPress any key to back to main menu")
+                continue
+
+            while True:
+                os.system('clear')
+                current_status = "Active" if statuses[user_index] else "Inactive"
+                print(f"::: Update User: {ids[user_index]} :::")
+                print(f"[1] Update firstname (current: {firtsnames[user_index]})")
+                print(f"[2] Update lastname (current: {lastnames[user_index]})")
+                print(f"[3] Update mobile phone (current: {mobile_phones[user_index]})")
+                print(f"[4] Update email (current: {emails[user_index]})")
+                print(f"[5] Update status (current: {current_status})")
+                print(f"[6] Update age (current: {ages[user_index]})")
+                print(f"[7] Update salary (current: {salarys[user_index]})")
+                print("[8] Update all fields")
+                print("[9] Exit to main menu")
+
+                update_opt = input("Select an option [1-9]: ")
+
+                if update_opt == '9':
+                    break
+
+                elif update_opt == '1':
+                    firtsnames[user_index] = input(
+                        f"Firstname (current: {firtsnames[user_index]}): "
+                    )
+
+                elif update_opt == '2':
+                    lastnames[user_index] = input(
+                        f"Lastname (current: {lastnames[user_index]}): "
+                    )
+
+                elif update_opt in ['3', '4']:
+                    is_phone = update_opt == '3'
+                    values = mobile_phones if is_phone else emails
+                    field_name = "Mobile Phone" if is_phone else "E-mail"
+                    current_val = values[user_index]
+
+                    while True:
+                        new_val = input(f"{field_name} (current: {current_val}): ")
+                        if is_phone and not new_val.isdigit():
+                            print("Invalid input! Mobile phone must contain numbers only.")
+                            continue
+
+                       
+                        duplicate = False
+                        for idx, val in enumerate(values):
+                            if idx != user_index and statuses[idx] and val == new_val:
+                                duplicate = True
+                                break
+                        
+                        if duplicate:
+                            print(f"{field_name} already exists in an active user! Try again.")
+                        else:
+                            values[user_index] = new_val
+                            break
+
+                elif update_opt == '5':
+                    while True:
+                        st_input = input(f"Status (current: {current_status}) [A]ctive/[I]nactive: ").strip().lower()
+                        if st_input in ['a', 'active']:
+                            statuses[user_index] = True
+                            break
+                        elif st_input in ['i', 'inactive']:
+                            statuses[user_index] = False
+                            break
+                        print("Invalid status. Please enter A (Active) or I (Inactive).")
+
+                elif update_opt == '6':
+                    while True:
+                        age_in = input(f"Age (current: {ages[user_index]}): ")
+                        if age_in.isdigit():
+                            ages[user_index] = int(age_in)
+                            break
+                        print("Invalid input! Age must be a number.")
+
+                elif update_opt == '7':
+                    while True:
+                        sal_in = input(f"Salary (current: {salarys[user_index]}): ")
+                        if sal_in.isdigit():
+                            salarys[user_index] = int(sal_in)
+                            break
+                        print("Invalid input! Salary must be numeric.")
+
+                elif update_opt == '8':
+                    firtsnames[user_index] = input(f"Firstname (current: {firtsnames[user_index]}): ")
+                    lastnames[user_index] = input(f"Lastname (current: {lastnames[user_index]}): ")
+
+                    
+                    while True:
+                        new_phone = input(f"Mobile Phone (current: {mobile_phones[user_index]}): ")
+                        if not new_phone.isdigit():
+                            print("Invalid input! Mobile phone must contain numbers only.")
+                            continue
+                        if any(idx != user_index and statuses[idx] and val == new_phone for idx, val in enumerate(mobile_phones)):
+                            print("Mobile phone already exists in an active user! Try again.")
+                        else:
+                            mobile_phones[user_index] = new_phone
+                            break
+
+                    
+                    while True:
+                        new_email = input(f"E-mail (current: {emails[user_index]}): ")
+                        if any(idx != user_index and statuses[idx] and val == new_email for idx, val in enumerate(emails)):
+                            print("E-mail already exists in an active user! Try again.")
+                        else:
+                            emails[user_index] = new_email
+                            break
+
+                    
+                    while True:
+                        st_input = input(f"Status (current: {current_status}) [A]ctive/[I]nactive: ").strip().lower()
+                        if st_input in ['a', 'active']:
+                            statuses[user_index] = True
+                            break
+                        elif st_input in ['i', 'inactive']:
+                            statuses[user_index] = False
+                            break
+                        print("Invalid status. Enter A or I.")
+
+                    
+                    while True:
+                        age_in = input(f"Age (current: {ages[user_index]}): ")
+                        if age_in.isdigit():
+                            ages[user_index] = int(age_in)
+                            break
+                        print("Invalid input! Age must be a number.")
+
+                    
+                    while True:
+                        sal_in = input(f"Salary (current: {salarys[user_index]}): ")
+                        if sal_in.isdigit():
+                            salarys[user_index] = int(sal_in)
+                            break
+                        print("Invalid input! Salary must be numeric.")
+
+                else:
+                    input("Invalid option. Press any key to try again...")
+                    continue
+
+                print("User has been updated successfully!")
+                input("Press any key to continue...")
+
         case '8': 
             any_key = input("bye bye. press any key... ")
             break
